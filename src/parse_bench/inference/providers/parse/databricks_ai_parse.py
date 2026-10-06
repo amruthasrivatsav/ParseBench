@@ -98,6 +98,7 @@ DATABRICKS_LABEL_MAP: dict[str, str] = {
     "page_footer": "Page-footer",
     "page_number": "Page-footer",
     "footnote": "Footnote",
+    "signature": "Picture",
 }
 
 # ai_parse_document returns element bboxes in absolute pixel coordinates of
