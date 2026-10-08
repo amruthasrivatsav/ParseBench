@@ -8,3 +8,15 @@ def test_point_lists_preserve_repeated_x_values_and_series():
     assert points.caption == "Sales"
     assert points.data.tolist() == [["x", "y"], ["2024", "10"], ["2024", "12"]]
     assert categories.data.tolist() == [["", "Profit"], ["2024", "3"]]
+
+
+def test_additional_info_is_preserved_in_chart_caption():
+    html = chart_json_to_html(
+        {
+            "title": "Arrivals",
+            "values": {"Canada": {"2023": 2.81, "2024": 2.94}},
+            "additional_info": "Growth: 26%, 4%",
+        }
+    )
+
+    assert "Arrivals / Growth: 26%, 4%" in html

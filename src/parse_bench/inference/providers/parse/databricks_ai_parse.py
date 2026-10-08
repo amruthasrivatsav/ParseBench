@@ -45,7 +45,7 @@ The returned VARIANT is a JSON object shaped like::
       "metadata": {...}
     }
 
-Element ``type`` is one of: text, table, figure, title, caption,
+Element ``type`` is one of: text, table, figure, signature, title, caption,
 section_header, page_header, page_footer, page_number, footnote.
 """
 
@@ -64,7 +64,7 @@ from typing import Any
 
 import requests
 
-from parse_bench.evaluation.metrics.parse.chart_json_to_html import chart_description_to_html
+from parse_bench.evaluation.metrics.parse.chart_json_to_html import chart_description_to_html, chart_json_to_html
 from parse_bench.inference.providers.base import (
     Provider,
     ProviderConfigError,
@@ -568,6 +568,19 @@ def _primary_page_id(element: dict[str, Any]) -> int:
     return 0
 
 
+def _chart_value_to_html(value: Any) -> str:
+    if isinstance(value, dict):
+        return chart_json_to_html(value)
+    if isinstance(value, str):
+        return chart_description_to_html(value)
+    return ""
+
+
+def _figure_chart_html(element: dict[str, Any]) -> str:
+    """Render current chart content, falling back to legacy descriptions."""
+    return _chart_value_to_html(element.get("content")) or _chart_value_to_html(element.get("description"))
+
+
 def _render_markdown(elements: list[dict[str, Any]]) -> str:
     """Concatenate element content in reading order, grouped by page."""
     from collections import defaultdict
@@ -579,19 +592,26 @@ def _render_markdown(elements: list[dict[str, Any]]) -> str:
     parts: list[str] = []
     for page_id in sorted(by_page.keys()):
         for el in sorted(by_page[page_id], key=lambda e: e.get("id", 0)):
-            content = (el.get("content") or "").strip()
+            raw_content = el.get("content")
+            content = raw_content.strip() if isinstance(raw_content, str) else ""
             el_type = (el.get("type") or "").lower()
+            content_chart_tables = _chart_value_to_html(raw_content) if el_type == "figure" else ""
+            legacy_chart_tables = (
+                _chart_value_to_html(el.get("description")) if el_type == "figure" and not content_chart_tables else ""
+            )
             if content:
                 if el_type == "title":
                     parts.append(f"# {content}")
                 elif el_type == "section_header":
                     parts.append(f"## {content}")
+                elif content_chart_tables:
+                    parts.append(content_chart_tables)
                 else:
                     parts.append(content)
-            if el_type == "figure":
-                chart_tables = chart_description_to_html(el.get("description") or "")
-                if chart_tables:
-                    parts.append(chart_tables)
+            if legacy_chart_tables:
+                parts.append(legacy_chart_tables)
+            elif not content and content_chart_tables:
+                parts.append(content_chart_tables)
     return "\n\n".join(parts)
 
 
@@ -713,7 +733,7 @@ def _build_layout_pages(document: dict[str, Any], source_file_path: str) -> list
                 LayoutItemIR(
                     type=item_type,
                     value=el.get("content") or "",
-                    html=(chart_description_to_html(el.get("description") or "") if el_type == "figure" else ""),
+                    html=(_figure_chart_html(el) if el_type == "figure" else ""),
                     bbox=seg,
                     layout_segments=[seg],
                 )
