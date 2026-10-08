@@ -680,6 +680,7 @@ def _build_layout_pages(document: dict[str, Any], source_file_path: str) -> list
         items: list[LayoutItemIR] = []
         for entry in entries:
             el = entry["element"]
+            el_type = (el.get("type") or "").lower()
             coord = entry["coord"] or []
             if len(coord) < 4:
                 continue
@@ -687,7 +688,7 @@ def _build_layout_pages(document: dict[str, Any], source_file_path: str) -> list
             w = max(x2 - x1, 0.0)
             h = max(y2 - y1, 0.0)
 
-            canonical = DATABRICKS_LABEL_MAP.get((el.get("type") or "").lower())
+            canonical = DATABRICKS_LABEL_MAP.get(el_type)
             if canonical is None:
                 continue
 
@@ -712,6 +713,7 @@ def _build_layout_pages(document: dict[str, Any], source_file_path: str) -> list
                 LayoutItemIR(
                     type=item_type,
                     value=el.get("content") or "",
+                    html=(chart_description_to_html(el.get("description") or "") if el_type == "figure" else ""),
                     bbox=seg,
                     layout_segments=[seg],
                 )
