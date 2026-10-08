@@ -64,7 +64,10 @@ from typing import Any
 
 import requests
 
-from parse_bench.evaluation.metrics.parse.chart_json_to_html import chart_description_to_html, chart_json_to_html
+from parse_bench.evaluation.metrics.parse.chart_json_to_html import (
+    chart_description_to_html,
+    chart_json_to_html,
+)
 from parse_bench.inference.providers.base import (
     Provider,
     ProviderConfigError,
@@ -596,22 +599,17 @@ def _render_markdown(elements: list[dict[str, Any]]) -> str:
             content = raw_content.strip() if isinstance(raw_content, str) else ""
             el_type = (el.get("type") or "").lower()
             content_chart_tables = _chart_value_to_html(raw_content) if el_type == "figure" else ""
-            legacy_chart_tables = (
-                _chart_value_to_html(el.get("description")) if el_type == "figure" and not content_chart_tables else ""
-            )
             if content:
                 if el_type == "title":
                     parts.append(f"# {content}")
                 elif el_type == "section_header":
                     parts.append(f"## {content}")
-                elif content_chart_tables:
-                    parts.append(content_chart_tables)
-                else:
+                elif not content_chart_tables:
                     parts.append(content)
-            if legacy_chart_tables:
-                parts.append(legacy_chart_tables)
-            elif not content and content_chart_tables:
-                parts.append(content_chart_tables)
+            if el_type == "figure":
+                chart_tables = content_chart_tables or _chart_value_to_html(el.get("description"))
+                if chart_tables:
+                    parts.append(chart_tables)
     return "\n\n".join(parts)
 
 
