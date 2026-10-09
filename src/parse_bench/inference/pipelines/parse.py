@@ -1262,6 +1262,28 @@ def register_parse_pipelines(register_fn) -> None:  # type: ignore[no-untyped-de
     )
 
     # =========================================================================
+    # LightOnOCR-3 (grounding prompt: one pass gives markdown and layout)
+    # =========================================================================
+
+    register_fn(
+        PipelineSpec(
+            pipeline_name="lightonocr_3_vllm_parse",
+            provider_name="lightonocr-3",
+            product_type=ProductType.PARSE,
+            config={
+                "model": "loocr-grounding",
+                "server_url_env": "LIGHTONOCR_3_SERVER_URL",
+                "prompt": "grounding",
+                "dpi": 400,
+                "max_pixels": 5_000_000,
+                "temperature": 0.1,
+                # QwenProvider's 16384 default is the whole context: image + output tokens would overflow.
+                "max_tokens": 12288,
+            },
+        )
+    )
+
+    # =========================================================================
     # Unlimited-OCR (baidu/Unlimited-OCR, DeepSeek-OCR successor with grounding)
     # =========================================================================
 

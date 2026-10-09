@@ -277,6 +277,12 @@ These pipelines require you to deploy the model on your own infrastructure (e.g.
 | `qwen3_8_flash_next_parse_with_layout` | Qwen3.8-Flash-Next-FP8, parse + layout | `QWEN3_8_FLASH_NEXT_SERVER_URL` |
 | `qwen3_8_flash_next_thinking_parse_with_layout` | Qwen3.8-Flash-Next-FP8, parse + layout with thinking | `QWEN3_8_FLASH_NEXT_SERVER_URL` |
 
+### LightOnOCR-3
+
+| Pipeline | Description | Env Var |
+|---|---|---|
+| `lightonocr_3_vllm_parse` | LightOnOCR-3 grounding prompt, parse + layout from one pass (400 DPI, 5M pixel cap) | `LIGHTONOCR_3_SERVER_URL` |
+
 ### Chandra OCR 2
 
 | Pipeline | Description | Env Var |

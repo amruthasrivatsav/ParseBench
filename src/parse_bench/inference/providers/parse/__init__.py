@@ -36,6 +36,7 @@ _PROVIDER_MODULES = [
     "jinaocr",
     "kdl_frontier_nano",
     "landingai",
+    "lightonocr-3",
     "liteparse",
     "markitdown",
     "opendataloader",
