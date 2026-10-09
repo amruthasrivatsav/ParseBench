@@ -3037,7 +3037,7 @@ class DatalabLayoutAdapter(LayoutAdapter):
         )
 
 
-@register_layout_adapter("qwen3_5", "qwen3_8", priority=90)
+@register_layout_adapter("qwen3_5", "qwen3_8", "lightonocr-3", priority=90)
 class QwenLayoutAdapter(LayoutAdapter):
     """Adapter that extracts LayoutOutput from Qwen ParseOutput.layout_pages.
 
